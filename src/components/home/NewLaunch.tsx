@@ -6,19 +6,23 @@ import Image from "next/image";
 import { Sparkles, ArrowRight, Phone } from "lucide-react";
 import { motion, useInView } from "framer-motion";
 import { products } from "@/lib/data";
+import { useLivePrices } from "@/lib/useLivePrices";
+import { applyLivePrices } from "@/lib/livePrices";
 import QuickView from "@/components/products/QuickView";
 import type { Product } from "@/components/products/ProductCard";
 import { useLanguage, pick } from "@/lib/LanguageContext";
 
 export default function NewLaunch() {
-  const product = products.find((p) => p.isNew);
+  const rawProduct = products.find((p) => p.isNew);
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
   const [quickView, setQuickView] = useState<Product | null>(null);
   const { language } = useLanguage();
+  const livePrices = useLivePrices();
 
-  if (!product) return null;
+  if (!rawProduct) return null;
 
+  const [product] = applyLivePrices([rawProduct], livePrices);
   const lowestPrice = Math.min(...product.variants.map((v) => v.price));
   const displayName = pick(language, product.name, product.nameMarathi);
   const displayDescription = pick(language, product.description, product.descriptionMarathi);
